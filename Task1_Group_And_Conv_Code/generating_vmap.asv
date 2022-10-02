@@ -1,0 +1,19 @@
+function vmap = generating_vmap()
+%GENERATING_VMAP 生成viterbi算法网格图的拓扑关系
+%   n:网格图中区块所在行数(=状态数+1)
+%   mode:编码模式，含义同解码器中的mode
+vmap=zeros(8,6);
+for n=1:8
+    state=n-1;
+    front_key1=bitshift(state,-1);
+    front_key2=front_key1+4;
+    Ax=[1,1,0,1];
+    Ay=[1,1,1,1];
+    x1=mod(sum(Ax.*[0,binlize(state,3)]),2);
+    y1=mod(sum(Ay.*[0,binlize(state,3)]),2);
+    x2=mod(sum(Ax.*[1,binlize(state,3)]),2);
+    y2=mod(sum(Ay.*[1,binlize(state,3)]),2);
+    vmap(n,:)=[front_key1+1,front_key2+1,x1,y1,x2,y2];
+end
+end
+

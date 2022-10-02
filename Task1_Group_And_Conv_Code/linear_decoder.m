@@ -5,6 +5,7 @@ function origincode = linear_decoder(bitstream)
     if rem(length(bitstream),8)~=0
         error("Length of Input bitstream must be integral multiple of 8.");
     end
+    origincode=zeros(1,length(bitstream)/8*3);
     for ii=1:length(bitstream)/8
         bitpatch=bitstream(8*(ii-1)+1:8*ii);
         corrector=mod(bitpatch*H',2);%校正子
@@ -19,16 +20,16 @@ function origincode = linear_decoder(bitstream)
         end
         er=errorset(pointer,:);%找到对应的错误图案
         originpatch=mod(bitpatch-er,2);
-    end
-    flag=0;
-    pointer=1;
-    while flag~=1
-        if codeset(pointer,:)==originpatch
-            flag=1;
-        else
-            pointer=pointer+1;
+        flag=0;
+        pointer=1;
+        while flag~=1
+            if codeset(pointer,:)==originpatch
+                flag=1;
+            else
+                pointer=pointer+1;
+            end
         end
+        origincode(3*(ii-1)+1:3*ii)=infoset(pointer,:);
     end
-    origincode=infoset(pointer,:);
 end
 

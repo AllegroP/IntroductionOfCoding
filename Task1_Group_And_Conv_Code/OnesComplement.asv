@@ -1,0 +1,12 @@
+function bin = binlize(Data)
+%OnesComplement 将数字转为其二进制表示，返回01数组，大端在前
+temp=floor(log2(Data))+1;
+complement=zeros(temp);
+while temp>0
+    complement=[mod(Data,2),complement];
+    Data=floor(temp/2);
+end
+if Data<0
+    complement=double(~complement);
+end
+
