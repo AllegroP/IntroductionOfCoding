@@ -4,17 +4,17 @@ function bin = binlize(Data,L)
 if rem(Data,1)~=0 || Data<0
     error("输入的数据无法转换为二进制。")
 end
-temp=floor(log2(Data))+1;
-bin=zeros(1,temp);
+temp = floor(log2(Data))+1;
+bin = zeros(1,temp);
 while temp>0
-    bin(temp)=mod(Data,2);
-    Data=floor(Data/2);
-    temp=temp-1;
+    bin(temp) = mod(Data,2);
+    Data = floor(Data/2);
+    temp = temp-1;
 end
-temp=L-length(bin);
+temp = L-length(bin);
 if temp>0
-    temp=zeros(1,temp);
-    bin=[temp,bin];
+    temp = zeros(1,temp);
+    bin = [temp,bin];
 end
 end
 

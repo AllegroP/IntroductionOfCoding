@@ -10,10 +10,10 @@ for n=1:8
     front_key2=front_key1+4;
     Ax=[1,0,1,1];
     Ay=[1,1,1,1];
-    x1=mod(sum(Ax.*[0,binlize(state,3)]),2);
-    y1=mod(sum(Ay.*[0,binlize(state,3)]),2);
-    x2=mod(sum(Ax.*[1,binlize(state,3)]),2);
-    y2=mod(sum(Ay.*[1,binlize(state,3)]),2);
+    x1=mod(sum(Ax.*[0,decTobin(state,3)]),2);
+    y1=mod(sum(Ay.*[0,decTobin(state,3)]),2);
+    x2=mod(sum(Ax.*[1,decTobin(state,3)]),2);
+    y2=mod(sum(Ay.*[1,decTobin(state,3)]),2);
     vmap(n,:)=[front_key1+1,front_key2+1,x1,y1,x2,y2];
 end
 vmap(vmap==0)=-1;
