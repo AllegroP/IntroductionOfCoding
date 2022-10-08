@@ -1,6 +1,7 @@
-function origincode = linear_decoder(bitstream)
+function origincode = linear_decoder(bitstream, len)
 %LINEAR_DECODER 将（8，3，4）编码出的比特流译回原码。
 %   基向量：01010101，00110011，00001111
+%   len: 原码长度
     load Check_Matrix.mat
     if rem(length(bitstream),8)~=0
         error("Length of Input bitstream must be integral multiple of 8.");
@@ -31,5 +32,6 @@ function origincode = linear_decoder(bitstream)
         end
         origincode(3*(ii-1)+1:3*ii)=infoset(pointer,:);
     end
+    origincode = origincode(1:len);
 end
 

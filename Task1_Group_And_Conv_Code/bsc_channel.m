@@ -17,7 +17,7 @@ function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BE
         sigma_n = sqrt(2 / (10^(snr_or_sigma/10)));
     else
         
-        sigma_n = snr_or_sigma
+        sigma_n = snr_or_sigma;
     end
     %bitstream = floor(rand(1,L)*2);
 
@@ -31,10 +31,10 @@ function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BE
     recv_sign = zeros(1,length(sign_stream));
 %     figure,plot(sign_stream,'o'); title = ("Planisphere");
 
-    mean_signal_energy_per_symbol = sign_stream*sign_stream'/length(sign_stream)
+    mean_signal_energy_per_symbol = sign_stream*sign_stream'/length(sign_stream);
 
     n = sigma_n*(randn(1,length(sign_stream)*T)+sqrt(-1)*randn(1,length(sign_stream)*T))/sqrt(2);
-    mean_noise_energy_per_symbol = n*n'/length(n)
+    mean_noise_energy_per_symbol = n*n'/length(n);
     %begin using channel
     beta = (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
 
@@ -51,16 +51,16 @@ function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BE
         recv_sign(i) = y_recv/sqrt(T);
     end
 
-    figure; plot(recv_sign,'ro');title("Bitstream output");
+    %figure; plot(recv_sign,'ro');title("Bitstream output");
 
     % judge
 
     bit_out = judge_sign(recv_sign,bit_num);
     bit_out = bit_out(1:length(bitstream));
     error_pattern = abs(bitstream - bit_out);
-    figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
-    title("After judgement");
-    BER = sum(abs(bitstream - bit_out))/length(bitstream)
+    %figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
+    %title("After judgement");
+    BER = sum(abs(bitstream - bit_out))/length(bitstream);
 
 
 
