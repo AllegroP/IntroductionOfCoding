@@ -1,70 +1,58 @@
 
+close all,clear all,clc
+%setup stage:
+L = 24;     % length of the bitstream
+T = 10;      % num of use of the sampling channel for one sign
+bit_num = 2; % num of bits compressed in the mapping
 
-function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BER] = bsc_channel(bitstream,bit_num,T,b,rho,...
-    flag_snr_or_sigma,snr_or_sigma)
+% channel parm:
+b = 0;
+rho = 0;
+sigma_n = 0.5; % noise variance = sqrt(noise_power)= sqrt(2 / (10^(snr_dB/10)))
 
 
-%     L = 24;     % length of the bitstream
-%     T = 10;      % num of use of the sampling channel for one sign
-%     bit_num = 1; % num of bits compressed in the mapping
-% 
-%     % channel parm:
-%     b = 0;
-%     rho = 0;
-%     sigma_n = 1; % noise variance = sqrt(noise_power)= sqrt(2 / (10^(snr_dB/10)))
-    if(flag_snr_or_sigma)
+bitstream = floor(rand(1,L)*2);
+
+% bitstream = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
+% bitstream = [0,0,0,1,1,1,1,0];
+
+figure; plot(bitstream,'r+');
+
+sign_stream = gray_map(bit_num,bitstream);
+recv_sign = zeros(1,length(sign_stream));
+figure,plot(sign_stream,'o');
+
+mean_signal_energy_per_symbol = sign_stream*sign_stream'/length(sign_stream)
+
+n = sigma_n*(randn(1,length(sign_stream)*T)+sqrt(-1)*randn(1,length(sign_stream)*T))/sqrt(2);
+mean_noise_energy_per_symbol = n*n'/length(n)
+%begin using channel
+beta = (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
+a = [];
+
+for i = 1:length(sign_stream) % for each sign
+    sign_in = sign_stream(i)/sqrt(T);
+    y_recv = 0;
+    a_add = 0;
+    for k = 1:T  % consecutively use the channel
+        a_add = a_add + a_temp;
+        a_temp = sqrt(1-b^2) + b* beta;
+        y_recv = y_recv + a_temp * sign_in + n(i*k);
+        beta = rho * beta + sqrt(1 - rho^2) * (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
         
-        sigma_n = sqrt(2 / (10^(snr_or_sigma/10)));
-    else
-        
-        sigma_n = snr_or_sigma
     end
-    %bitstream = floor(rand(1,L)*2);
-
-    % bitstream = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
-% 
-%     bitstream = [0,0,0,1,1,1,1,0];
-
-%     figure; plot(bitstream,'r+');title = ("Bitstream input");
-
-    sign_stream = gray_map(bit_num,bitstream);
-    recv_sign = zeros(1,length(sign_stream));
-%     figure,plot(sign_stream,'o'); title = ("Planisphere");
-
-    mean_signal_energy_per_symbol = sign_stream*sign_stream'/length(sign_stream)
-
-    n = sigma_n*(randn(1,length(sign_stream)*T)+sqrt(-1)*randn(1,length(sign_stream)*T))/sqrt(2);
-    mean_noise_energy_per_symbol = n*n'/length(n)
-    %begin using channel
-    beta = (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
-
-    for i = 1:length(sign_stream) % for each sign
-        sign_in = sign_stream(i)/sqrt(T);
-        y_recv = 0;
-        for k = 1:T  % consecutively use the channel
-
-            a_temp = sqrt(1-b^2) + b* beta;
-            y_recv = y_recv + a_temp * sign_in + n(i*k);
-            beta = rho * beta + sqrt(1 - rho^2) * (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
-
-        end
-        recv_sign(i) = y_recv/sqrt(T);
-    end
-
-    figure; plot(recv_sign,'ro');title("Bitstream output");
-
-    % judge
-
-    bit_out = judge_sign(recv_sign,bit_num);
-    bit_out = bit_out(1:length(bitstream));
-    error_pattern = abs(bitstream - bit_out);
-    figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
-    title("After judgement");
-    BER = sum(abs(bitstream - bit_out))/length(bitstream)
-
-
-
+    a = [a,a_add];
+    recv_sign(i) = y_recv/sqrt(T);
 end
+
+figure; plot(recv_sign,'ro');
+
+% judge
+
+bit_out = judge_sign(recv_sign,bit_num);
+error_pattern = abs(bitstream - bit_out);
+figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
+BER = sum(abs(bitstream - bit_out))/length(bitstream);
 
 function sign_stream = gray_map(bit_num,bitstream)
     n = 2^bit_num;
@@ -125,8 +113,11 @@ function bit_out = judge_sign(recv_sign,bit_num)
         [~,idx] = min(dist);
         bit_out(((i-1)*bit_num+1):((i-1)*bit_num+bit_num)) = code(bit_num,(idx-1)*bit_num+1:(idx-1)*bit_num+bit_num);
     end
-   
+    
+
 end
+
+
 function bit_out = judeg_cond_12(recv_sign,bit_num,a)
     recv_2_proc = recv_sign./a;
     bit_out = judge_sign(recv_2_proc,bit_num);

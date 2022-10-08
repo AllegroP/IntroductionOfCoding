@@ -1,10 +1,10 @@
-function info = Convol_Decode(code,mode,decodingMode)
+function info = Convol_Decode(code,encodingMode,decodingMode)
 %{
 code: 0 1 sequence or decimal sequence
 encodingMode: --1:(15,17)  --2:(13,15,17)
 decodingMode: --1:Hard judgement --2:Soft judgement
 %}
-    if (mode == 1) % 1:(15,17) 
+    if (encodingMode == 1) % 1:(15,17) 
         from = zeros(16,length(code)/2);
         frontScore = zeros(1,16);
 
@@ -77,38 +77,39 @@ decodingMode: --1:Hard judgement --2:Soft judgement
         end
         info = res;
     end
+    info = info(1:end-3);
 end
 
 
 function [s1,s2,c1,c2] = getfront(state,mode)
     y = decTobin(state-1);
-    s1 = dot([y(2:4),0],[1,2,4,8])+1;
-    s2 = dot([y(2:4),1],[1,2,4,8])+1;
+    s1 = dot([y(2:3),0],[1,2,4])+1;
+    s2 = dot([y(2:3),1],[1,2,4])+1;
     if (mode == 1)
-        m = dot([1,1,1,1,0],[y(1:4),0]);
-        n = dot([1,0,0,0,1],[y(1:4),0]);
-        x1 = (mod(2,m)==1) | (m==1);
-        x2 = (mod(2,n)==1) | (n==1);
+        m = dot([1,1,0,1],[y(1:3),0]);
+        n = dot([1,1,1,1],[y(1:3),0]);
+        x1 = (mod(m,2)==1) | (m==1);
+        x2 = (mod(n,2)==1) | (n==1);
         c1 = [x1,x2];
-        m2 = dot([1,1,1,1,0],[y(1:4),1]);
-        n2 = dot([1,0,0,0,1],[y(1:4),1]);
-        x3 = (mod(2,m2)==1) | (m2==1);
-        x4 = (mod(2,n2)==1) | (n2==1);
+        m2 = dot([1,1,0,1],[y(1:3),1]);
+        n2 = dot([1,1,1,1],[y(1:3),1]);
+        x3 = (mod(m2,2)==1) | (m2==1);
+        x4 = (mod(n2,2)==1) | (n2==1);
         c2 = [x3,x4];
     else
-        m = dot([1,0,1,1,0],[y(1:4),0]);
-        n = dot([1,1,1,1,0],[y(1:4),0]);
-        p = dot([1,0,0,0,1],[y(1:4),0]);
-        x1 = (mod(2,m)==1) | (m==1);
-        x2 = (mod(2,n)==1) | (n==1);
-        x3 = (mod(2,p)==1) | (p==1); 
+        m = dot([1,0,1,1],[y(1:3),0]);
+        n = dot([1,1,0,1],[y(1:3),0]);
+        p = dot([1,1,1,1],[y(1:3),0]);
+        x1 = (mod(m,2)==1) | (m==1);
+        x2 = (mod(n,2)==1) | (n==1);
+        x3 = (mod(p,2)==1) | (p==1); 
         c1 = [x1,x2,x3];
-        m2 = dot([1,1,1,1,0],[y(1:4),1]);
-        n2 = dot([1,0,0,0,1],[y(1:4),1]);
-        p2 = dot([1,0,0,0,1],[y(1:4),1]);
-        x4 = (mod(2,m2)==1) | (m2==1);
-        x5 = (mod(2,n2)==1) | (n2==1);
-        x6 = (mod(2,p2)==1) | (p2==1); 
+        m2 = dot([1,0,1,1],[y(1:3),1]);
+        n2 = dot([1,1,0,1],[y(1:3),1]);
+        p2 = dot([1,1,1,1],[y(1:3),1]);
+        x4 = (mod(m2,2)==1) | (m2==1);
+        x5 = (mod(n2,2)==1) | (n2==1);
+        x6 = (mod(p2,2)==1) | (p2==1); 
         c2 = [x4,x5,x6];
     end
    
@@ -119,6 +120,17 @@ function out = getinfo(state)
     out = res(1);
 end
 
+function out = decTobin(x) % Convert Decimal to Binary
+    if x == 0
+        y=[0,0,0];
+    else
+        y = fliplr(double(dec2bin(abs(x)))-'0');
+        while (length(y)<3)
+            y = [y,0];  % Align to 4 digits
+        end
+    end
+    out = y;
+end
 
 function out = Distance(a,b,mode)
     if (mode==1)
