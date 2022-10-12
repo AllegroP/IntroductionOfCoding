@@ -1,5 +1,7 @@
-function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BER, outer_snr, snr_for_sample_channel] ...
-    = bsc_channel(bitstream,bit_num,T,b,rho,flag_snr_or_sigma,snr_or_sigma,beta_in, soft_or_hard)
+
+
+function [recv_sign, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol, outer_snr, snr_for_sample_channel, a] ...
+    = bsc_channel(bitstream,bit_num,T,b,rho,flag_snr_or_sigma,snr_or_sigma,beta_in)
 
 
 %     L = 24;     % length of the bitstream
@@ -37,6 +39,7 @@ function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BE
     beta = beta_in;
     
     noise_amp = [];
+    a = [];
     for i = 1:length(sign_stream) % for each sign
         sign_in = sign_stream(i)/sqrt(T);
         y_recv = 0;
@@ -44,35 +47,37 @@ function [bit_out, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,BE
         for k = 1:T  % consecutively use the channel
 
             a_temp = sqrt(1-b^2) + b* beta;
+            
             added_a = added_a+a_temp;
             y_recv = y_recv + a_temp * sign_in + n(i*k);
             beta = rho * beta + sqrt(1 - rho^2) * (randn(1)+sqrt(-1)*randn(1))/sqrt(2);
 
         end
         recv_sign(i) = y_recv/sqrt(T);
+        a = [a added_a/T];
         noise_a = recv_sign(i) - added_a/sqrt(T) * sign_in;
         noise_amp = [noise_amp real(noise_a)];
         
     end
-    
+    snr_for_sample_channel = 2 / (T*sigma_n^2);
 %     outer_snr = length(noise_amp)/ sum(real(noise_amp));
     outer_snr = 1/var(noise_amp);
     %figure; plot(recv_sign,'ro');title("Bitstream output");
 
     % judge
 
-    bit_out = judge_sign(recv_sign,bit_num);
-    bit_out = bit_out(1:length(bitstream));
-    error_pattern = abs(bitstream - bit_out);
-%     figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
-%     title("After judgement");
-    BER = sum(abs(bitstream - bit_out))/length(bitstream);
-    snr_for_sample_channel = 2 / sigma_n^2;
-    
-    
-    if soft_or_hard && bit_num == 1
-        bit_out = tanh(real(recv_sign));
-    end
+%     bit_out = judging(3,recv_sign,bit_num,a,T,bitstream);
+%     bit_out = bit_out(1:length(bitstream));
+%     error_pattern = abs(bitstream - bit_out);
+% %     figure;plot(bitstream,'g+'); hold on; plot(bit_out,'bx'); plot(error_pattern,'ro');
+% %     title("After judgement");
+%     BER = sum(abs(bitstream - bit_out))/length(bitstream);
+%     
+%     
+%     
+%     if soft_or_hard && bit_num == 1
+%         bit_out = tanh(real(recv_sign));
+%     end
 
 end
 
@@ -119,30 +124,29 @@ function sign_stream = gray_map(bit_num,bitstream)
 end
 
 
-function bit_out = judge_sign(recv_sign,bit_num)
-    bit_out = zeros(1,bit_num*length(recv_sign));
-    n = 2^bit_num;
-    pattern = exp(1j * 2*pi/n * (0:n-1));
-%     code_1 = [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-%     code_2 = [0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-%     code_3 = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
-    
-    code = [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;...
-        0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;...
-        0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
-    for i = 1:length(recv_sign)
-        dist = abs(recv_sign(i)-pattern);
-        [~,idx] = min(dist);
-        bit_out(((i-1)*bit_num+1):((i-1)*bit_num+bit_num)) = code(bit_num,(idx-1)*bit_num+1:(idx-1)*bit_num+bit_num);
-    end
-   
-end
-
-function bit_out = judge_cond_2(recv_sign,bit_num,a)
-    
-    recv_2_proc = recv_sign./a;
-    bit_out = judge_sign(recv_2_proc,bit_num);
-end
+% function bit_out = judge_sign(recv_sign,bit_num)
+%     bit_out = zeros(1,bit_num*length(recv_sign));
+%     n = 2^bit_num;
+%     pattern = exp(1j * 2*pi/n * (0:n-1));
+% %     code_1 = [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+% %     code_2 = [0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+% %     code_3 = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
+%     
+%     code = [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;...
+%         0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0;...
+%         0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
+%     for i = 1:length(recv_sign)
+%         dist = abs(recv_sign(i)-pattern);
+%         [~,idx] = min(dist);
+%         bit_out(((i-1)*bit_num+1):((i-1)*bit_num+bit_num)) = code(bit_num,(idx-1)*bit_num+1:(idx-1)*bit_num+bit_num);
+%     end
+%    
+% end
+% function bit_out = judge_cond_2(recv_sign,bit_num,a,T)
+%     
+%     recv_2_proc = recv_sign./a;
+%     bit_out = judge_sign(recv_2_proc,bit_num);
+% end
 
 
 % function [bit_out,a_idx] = judge_cond_1(recv_sign,bit_num,a)

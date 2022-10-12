@@ -3,8 +3,8 @@ close all
 clc
 n = 2345;
 mode = 1;
-b = 0;
-rho = 0;
+b = 0.7;
+rho = 0.996;
 sigma = linspace(0,1,20);
 werr = zeros(1,20);
 beta = randn()+sqrt(-1)*randn();
@@ -30,10 +30,10 @@ beta = randn()+sqrt(-1)*randn();
 
 test_ber_snr = floor(rand(1,n)*2);
 
-for i = 1:10
+% for i = 1:10
 beta = randn()+sqrt(-1)*randn();
-plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[0,9],beta);
-end
+plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[-40,15],beta);
+% end
 function out = error_rate(bitin,bitout)
     bitin = [bitin, zeros(1,32-mod(length(bitin),32))];
     bitout = [bitout, zeros(1,32-mod(length(bitout),32))];
