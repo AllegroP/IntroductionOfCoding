@@ -29,7 +29,7 @@ function [recv_sign, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,
 
     sign_stream = gray_map(bit_num,bitstream);
     recv_sign = zeros(1,length(sign_stream));
-%     figure,plot(sign_stream,'o'); title = ("Planisphere");
+
 
     mean_signal_energy_per_symbol = sign_stream*sign_stream'/length(sign_stream);
 
@@ -63,7 +63,10 @@ function [recv_sign, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol,
 %     outer_snr = length(noise_amp)/ sum(real(noise_amp));
     outer_snr = 1/var(noise_amp);
     %figure; plot(recv_sign,'ro');title("Bitstream output");
-
+%     figure,plot(sign_stream,'o'); 
+%     
+%     hold on
+%     figure,plot(recv_sign,'*');title = ("Planisphere"),xlim([-2,2]), ylim([-2,2]),axis equal;
     % judge
 
 %     bit_out = judging(3,recv_sign,bit_num,a,T,bitstream);

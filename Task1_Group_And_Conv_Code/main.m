@@ -1,10 +1,11 @@
 clear all
 close all 
 clc
-n = 2345;
+n = 468;
 mode = 1;
-b = 0.7;
-rho = 0.996;
+b = 1;
+T=10;
+rho = 1;
 sigma = linspace(0,1,20);
 werr = zeros(1,20);
 beta = randn()+sqrt(-1)*randn();
@@ -29,6 +30,7 @@ beta = randn()+sqrt(-1)*randn();
 % plot the ber_snr curve:
 
 test_ber_snr = floor(rand(1,n)*2);
+[recv_sign,~,~,~,~,~] = bsc_channel(test_ber_snr,3,T,b,rho,1,18,beta);
 
 % for i = 1:10
 beta = randn()+sqrt(-1)*randn();

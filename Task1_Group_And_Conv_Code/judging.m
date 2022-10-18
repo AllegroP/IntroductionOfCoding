@@ -23,13 +23,38 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
         bit_out = judge_sign(recv_2_proc,bit_num);
     end
     
-    bit_out = bit_out(1:length(bitstream));
-    error_pattern = abs(bitstream - bit_out);
-    BER = sum(abs(bitstream - bit_out))/length(bitstream);
-    if soft_or_hard && bit_num == 1
-        bit_out = tanh(real(recv_sign));
+    
+    if soft_or_hard
+        if bit_num == 1
+            bit_out = tanh(real(recv_sign));
+        elseif bit_num == 2
+            bitss = [];
+            for i = 1:length(recv_sign)
+                dist_for_2 = zeros(1,4);
+                for k = 0:3
+                    dist_for_2(k+1) = abs(exp(2*pi*1j/4*k)-recv_sign(i));
+                end
+                bitss = [bitss dist_for_2];
+            end
+            bit_out = bitss;
+        elseif bit_num == 3
+            bitss = [];
+            for i = 1:length(recv_sign)
+                dist_for_3 = zeros(1,8);
+                for k = 0:3
+                    dist_for_3(k+1) = abs(exp(2*pi*1j/8*k)-recv_sign(i));
+                end
+                bitss = [bitss dist_for_3];
+            end
+            bit_out = bitss;
+        end
+    else
+        bit_out = bit_out(1:length(bitstream));
+        error_pattern = abs(bitstream - bit_out);
+        BER = sum(abs(bitstream - bit_out))/length(bitstream);   
     end
-
+    
+    
 end
 
 
