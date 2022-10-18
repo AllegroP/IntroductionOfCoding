@@ -1,12 +1,15 @@
 clear all
 %close all 
 clc
-n = 3000;
+
+n = 468;
 mode = 1;
-b = 0;
-rho = 0;
-sigma = linspace(0,1,10);
-werr = zeros(1,10);
+b = 1;
+T=10;
+rho = 1;
+sigma = linspace(0,1,20);
+werr = zeros(1,20);
+
 beta = randn()+sqrt(-1)*randn();
 generator = [1,0,0,0,1,1,0,1,1];
 for ii = 1:10
@@ -29,12 +32,15 @@ xlabel("σ");
 ylabel("误字率/%");
 % plot the ber_snr curve:
 
-% test_ber_snr = floor(rand(1,n)*2);
-% 
+
+test_ber_snr = floor(rand(1,n)*2);
+[recv_sign,~,~,~,~,~] = bsc_channel(test_ber_snr,3,T,b,rho,1,18,beta);
+
 % for i = 1:10
-% beta = randn()+sqrt(-1)*randn();
-% plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[0,9],beta);
+beta = randn()+sqrt(-1)*randn();
+plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[-40,15],beta);
 % end
+
 % sigma = linspace(0,1,10);
 % rate = zeros(1,10);
 % for ii=1:10
