@@ -8,29 +8,22 @@ function origincode = linear_decoder(bitstream, len)
     end
     origincode=zeros(1,length(bitstream)/8*3);
     for ii=1:length(bitstream)/8
-        bitpatch=bitstream(8*(ii-1)+1:8*ii);
-        corrector=mod(bitpatch*H',2);%校正子
-        flag=0;
-        pointer=1;
-        while flag~=1
-            if corset(pointer,:)==corrector%在校正子集里查找对应的行
-                flag=1;
+        bitpatch = bitstream(8*(ii-1)+1:8*ii);
+        corrector = mod(bitpatch*H',2);%校正子
+        index = sum(corrector.*[16,8,4,2,1])+1;
+        er = errorset(index,:);%找到对应的错误图案
+        originpatch = mod(bitpatch-er,2);
+
+        flag = 0;
+        pointer = 1;
+        while flag ~= 1
+            if codeset(pointer,:) == originpatch
+                flag = 1;
             else
-                pointer=pointer+1;
+                pointer = pointer+1;
             end
         end
-        er=errorset(pointer,:);%找到对应的错误图案
-        originpatch=mod(bitpatch-er,2);
-        flag=0;
-        pointer=1;
-        while flag~=1
-            if codeset(pointer,:)==originpatch
-                flag=1;
-            else
-                pointer=pointer+1;
-            end
-        end
-        origincode(3*(ii-1)+1:3*ii)=infoset(pointer,:);
+        origincode(3*(ii-1)+1:3*ii) = infoset(pointer,:);
     end
     origincode = origincode(1:len);
 end

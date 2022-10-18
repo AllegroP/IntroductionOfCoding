@@ -5,26 +5,26 @@ encodingMode: --1:(15,17)  --2:(13,15,17)
 decodingMode: --1:Hard judgement --2:Soft judgement
 %}
     if (encodingMode == 1) % 1:(15,17) 
-        from = zeros(16,length(code)/2);
-        frontScore = zeros(1,16);
+        from = zeros(8,length(code)/2);
+        frontScore = zeros(1,8);
 
-        for i = 1:16  % Distance initialization as the starting point states are limited
+        for i = 1:8  % Distance initialization as the starting point states are limited
             if i>1
                 frontScore(i) = 1000000;
             end
         end
         
-        nowScore = zeros(1,16);
+        nowScore = zeros(1,8);
 
         for i = 1:length(code)/2  % Viterbi Updation process
-            for j = 1:16 
+            for j = 1:8
                 [s1,s2,c1,c2] = getfront(j,1); % Get the pre states and path information
                 r = code(2*i-1 : 2*i);
                 if frontScore(s1)+Distance(r,c1,decodingMode) > frontScore(s2)+Distance(r,c2,decodingMode)
-                    nowScore(j) = frontScore(s2)+sum(c2~=r);
+                    nowScore(j) = frontScore(s2)+Distance(r,c2,decodingMode);
                     from(j,i) = s2;
                 else
-                    nowScore(j) = frontScore(s1)+sum(c1~=r);
+                    nowScore(j) = frontScore(s1)+Distance(r,c1,decodingMode);
                     from(j,i) = s1;
                 end     
             end
@@ -42,26 +42,26 @@ decodingMode: --1:Hard judgement --2:Soft judgement
         
     else  % 2:(13,15,17) Coding mode
         
-        from = zeros(16,length(code)/3);
-        frontScore = zeros(1,16);
+        from = zeros(8,length(code)/3);
+        frontScore = zeros(1,8);
 
-        for i = 1:16  % Distance initialization as the starting point states are limited
+        for i = 1:8  % Distance initialization as the starting point states are limited
             if i>1
                 frontScore(i) = 1000000;
             end
         end
 
-        nowScore = zeros(1,16);
+        nowScore = zeros(1,8);
 
         for i = 1:length(code)/3  % Viterbi Updation process
-            for j = 1:16 
+            for j = 1:8
                 [s1,s2,c1,c2] = getfront(j,2); % Get the pre states and path information
                 r = code(3*i-2 : 3*i);
                 if frontScore(s1)+Distance(r,c1,decodingMode) > frontScore(s2)+Distance(r,c2,decodingMode)
-                    nowScore(j) = frontScore(s2)+sum(c2~=r);
+                    nowScore(j) = frontScore(s2)+Distance(r,c2,decodingMode);
                     from(j,i) = s2;
                 else
-                    nowScore(j) = frontScore(s1)+sum(c1~=r);
+                    nowScore(j) = frontScore(s1)+Distance(r,c1,decodingMode);
                     from(j,i) = s1;
                 end     
             end
@@ -77,7 +77,7 @@ decodingMode: --1:Hard judgement --2:Soft judgement
         end
         info = res;
     end
-    info = info(1:end-3);
+    a = 1;
 end
 
 
@@ -112,7 +112,6 @@ function [s1,s2,c1,c2] = getfront(state,mode)
         x6 = (mod(p2,2)==1) | (p2==1); 
         c2 = [x4,x5,x6];
     end
-   
 end
 
 function out = getinfo(state) 
