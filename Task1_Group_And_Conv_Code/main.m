@@ -1,6 +1,7 @@
 clear all
 close all 
 clc
+
 n = 468;
 mode = 1;
 b = 1;
@@ -8,11 +9,12 @@ T=10;
 rho = 1;
 sigma = linspace(0,1,20);
 werr = zeros(1,20);
+
 beta = randn()+sqrt(-1)*randn();
-% for ii = 1:20
+generator = [1,0,0,0,1,1,0,1,1];
+% for ii = 1:50
 %     temp = zeros(1,10);
 %     for jj=1:10
-%         generator = [1,1,0,1,0,0,1];
 %         info = floor(rand(1,n)*2);
 %         info_after_CRC = CRC_generator(info, generator);
 %         bitstream_in = linear_coder(info_after_CRC);
@@ -26,8 +28,10 @@ beta = randn()+sqrt(-1)*randn();
 %     werr(ii) = sum(temp)/10;
 % end
 % plot(sigma,werr);
-
+% xlabel("σ");
+% ylabel("误字率/%");
 % plot the ber_snr curve:
+
 
 test_ber_snr = floor(rand(1,n)*2);
 [recv_sign,~,~,~,~,~] = bsc_channel(test_ber_snr,3,T,b,rho,1,18,beta);
@@ -36,6 +40,7 @@ test_ber_snr = floor(rand(1,n)*2);
 beta = randn()+sqrt(-1)*randn();
 plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[-40,15],beta);
 % end
+
 function out = error_rate(bitin,bitout)
     bitin = [bitin, zeros(1,32-mod(length(bitin),32))];
     bitout = [bitout, zeros(1,32-mod(length(bitout),32))];
