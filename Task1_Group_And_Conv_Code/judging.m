@@ -41,7 +41,7 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
             bitss = [];
             for i = 1:length(recv_sign)
                 dist_for_3 = zeros(1,8);
-                for k = 0:3
+                for k = 0:7
                     dist_for_3(k+1) = abs(exp(2*pi*1j/8*k)-recv_sign(i));
                 end
                 bitss = [bitss dist_for_3];
