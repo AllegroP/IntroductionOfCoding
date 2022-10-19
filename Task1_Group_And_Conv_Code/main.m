@@ -37,8 +37,9 @@ test_ber_snr = floor(rand(1,n)*2);
 [recv_sign,~,~,~,~,~] = bsc_channel(test_ber_snr,3,T,b,rho,1,18,beta);
 
 % for i = 1:10
-beta = randn()+sqrt(-1)*randn();
-plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[-40,15],beta);
+ beta = (randn()+sqrt(-1)*randn())/sqrt(2);
+ plot_all_3nd(test_ber_snr,T,[-40,15],beta)
+% plot_ber_snr_curve(test_ber_snr,1,10,b,rho,[-40,15],beta);
 % end
 
 function out = error_rate(bitin,bitout)
