@@ -1,4 +1,4 @@
-function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bitstream,soft_or_hard)
+function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a, T, sigma, bitstream,soft_or_hard)
 % input args:
 %     mode: 1->send and receive both know a_i  (not done yet)
 %           2->only receive knows a_i
@@ -35,6 +35,7 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
                     dist_for_2(k+1) = abs(exp(2*pi*1j/4*k)-recv_sign(i));
                 end
                 bitss = [bitss dist_for_2];
+                bitss = logRayleigh(bitss, sigma);
             end
             bit_out = bitss;
         elseif bit_num == 3
@@ -45,6 +46,7 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
                     dist_for_3(k+1) = abs(exp(2*pi*1j/8*k)-recv_sign(i));
                 end
                 bitss = [bitss dist_for_3];
+                bitss = logRayleigh(bitss, sigma);
             end
             bit_out = bitss;
         end
@@ -57,7 +59,9 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
     
 end
 
-
+function out = logRayleigh(dst, sigma)
+    out = 2*log(dst)-dst.^2/(sigma^2);
+end
 
 function bit_out = judge_sign(recv_sign,bit_num)
     bit_out = zeros(1,bit_num*length(recv_sign));

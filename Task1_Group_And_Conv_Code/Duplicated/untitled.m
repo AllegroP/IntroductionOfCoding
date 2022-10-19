@@ -7,7 +7,7 @@ for ii=1:32
     index=0;
     for jj=1:length(corset)
         if corset(jj,:)==s
-            temp=sum(errorset(jj,:));
+            temp=sum(errorset(jj,:));%计算错误图案码重
             if temp<=Min
                 Min=temp;
                 index=jj;
