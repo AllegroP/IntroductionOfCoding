@@ -56,6 +56,7 @@ function [] = plot_ber_snr_curve(bitstream,bit_num,T,b,rho,snr_dB_range,beta)
     ylabel('复采样信道输出信噪比');
     %semilogy
     figure; plot(snr,BER);  %  bit_num, b, rho, scene 3
+    legend('bit_num = 1,b = 1,rho = 1,')
     xlabel('复电平信道信噪比（dB）');
     ylabel('误比特率');
     grid

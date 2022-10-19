@@ -115,7 +115,7 @@ function sign_stream = gray_map(bit_num,bitstream)
         
     elseif (bit_num == 3)
         gray_three_map = [1,2,4,3,7,8,6,5];
-        
+
         for i = 1:3:length(bitstream)
             
             slice = bitstream(i:i+2);
