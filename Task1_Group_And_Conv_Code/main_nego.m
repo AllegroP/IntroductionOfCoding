@@ -1,35 +1,28 @@
- clear all,close all,clc;
-% n = 50;
-% info =  floor(rand(1,n)*2);
-% % beta = (randn() + sqrt(-1)*randn())/sqrt(2);
-% k = 0:9;
-% beta = exp(1j*2*pi/10*k);
-% b = 0.9;
-% rho = 0.95;
-% idx = 1:50;
-% 
-% for i = 1:length(k)
-%     [recv_sign,~,~,~,~,a] = bsc_channel(info,1,10,b,rho,0,0.5,beta(i));
-%     [~,error_pattern,BER] = judging(3,recv_sign,1,a,10,info,0);
-%     sum(error_pattern)
-%     error_im(:,:,1)=error_pattern*255;
-%     error_im(:,:,2)=(1-error_pattern)*255;
-%     error_im(:,:,3)=0;
-%     figure;
-%     subplot(3,1,1);
-%     image(error_im);
-%     subplot(3,1,2);
-%     plot(idx,abs(angle(a)));
-%     subplot(3,1,3);
-%     plot(idx,abs(a));
-%     
-% end
 
-info = [0,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,0,1,1,0,0];
-b = 0;
-rho = 0;
-beta = (randn() + sqrt(-1)*randn())/sqrt(2);
-[recv_sign,~,~,~,~,a] = bsc_channel(info,3,10,b,rho,0,0.1,beta);
-[bitout,error_pattern,BER] = judging(3,recv_sign,3,a,10,info,0);
+clear all 
+close all
+clc
+n = 40;
+b = 0.7;
+rho = 0.996;
+bitnum = 3;
+info = rand(1, n)<.5;
+mode = 2;
+sigma = 0.05;
+figure;
+title("错误图案");
+for ii = 1:12
+    beta1 = normrnd(0, sigma/sqrt(2)) + 1i*normrnd(0, sigma/sqrt(2));
+    bitstream_in = Convol_Code(info, mode, 1);
+    [bitstream_out,a] = bsc_channel(bitstream_in, bitnum, 10, b, rho, 0, sigma, beta1);
+    judge_out = judging(3, bitstream_out, bitnum, a, 10, sigma, bitstream_in, 1);
+    info_decode = Convol_DecodePro(judge_out, mode);
+    error_pattern = abs(info_decode(1:n)-info);
 
-
+    error_im(:,:,1)=error_pattern*255;
+    error_im(:,:,2)=(1-error_pattern)*255;
+    error_im(:,:,3)=0;
+    
+    subplot(3,4,ii);
+    image(error_im);
+end

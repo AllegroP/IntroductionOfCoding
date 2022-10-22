@@ -1,6 +1,6 @@
 
 
-function [recv_sign, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol, outer_snr, snr_for_sample_channel, a] ...
+function [recv_sign, a, mean_signal_energy_per_symbol,mean_noise_energy_per_symbol, outer_snr, snr_for_sample_channel] ...
     = bsc_channel(bitstream,bit_num,T,b,rho,flag_snr_or_sigma,snr_or_sigma,beta_in)
 
 
@@ -114,9 +114,11 @@ function sign_stream = gray_map(bit_num,bitstream)
         end
         
     elseif (bit_num == 3)
+
         gray_three_map = [1,2,4,3,8,7,5,6];
                                   
         
+
         for i = 1:3:length(bitstream)
             
             slice = bitstream(i:i+2);

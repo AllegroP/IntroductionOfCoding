@@ -1,4 +1,4 @@
-function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bitstream,soft_or_hard)
+function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a, T, sigma, bitstream,soft_or_hard)
 % input args:
 %     mode: 1->send and receive both know a_i  (not done yet)
 %           2->only receive knows a_i
@@ -34,6 +34,7 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
                 for k = 0:3
                     dist_for_2(k+1) = abs(exp(2*pi*1j/4*k)-recv_sign(i));
                 end
+                dist_for_2 = callikelihood(dist_for_2, sigma);
                 bitss = [bitss dist_for_2];
             end
             bit_out = bitss;
@@ -44,6 +45,7 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
                 for k = 0:7
                     dist_for_3(k+1) = abs(exp(2*pi*1j/8*k)-recv_sign(i));
                 end
+                dist_for_3 = callikelihood(dist_for_3, sigma);
                 bitss = [bitss dist_for_3];
             end
             bit_out = bitss;
@@ -57,7 +59,15 @@ function [bit_out,error_pattern,BER] = judging(mode, recv_sign,bit_num, a,T,bits
     
 end
 
-
+function out = callikelihood(dst, sigma)
+%       dst = 2*dst/(sigma^2).*exp(-dst.^2/(sigma^2));
+%       out = -log(dst/sum(dst));
+%      if sigma~=0
+%         out = -log(dst)+dst.^2/(sigma^2);
+%      else
+       out = dst;
+%     end
+end
 
 function bit_out = judge_sign(recv_sign,bit_num)
     bit_out = zeros(1,bit_num*length(recv_sign));
