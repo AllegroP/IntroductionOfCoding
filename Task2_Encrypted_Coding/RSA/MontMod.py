@@ -1,4 +1,5 @@
 def montMod(base, expo, divisor):
+#计算base^expo(mod divisor)
     out = 1
     binexpo = bin(int(expo))[::-1] 
     temp = base #底数小于除数，即a mod n = a (a < n)
