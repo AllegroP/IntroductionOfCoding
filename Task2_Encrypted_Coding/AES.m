@@ -3,7 +3,7 @@ function emsg = AES(msg, key)
 %   msg, key为16字节字符串
     load StrucMat.mat SBox 
     %加载数据
-    emsg = '';
+    emsg = [];
     msgmat = zeros(4, 4);
     keymat = zeros(4, 44);
     emsgmat = zeros(4, 4);
@@ -48,7 +48,7 @@ function emsg = AES(msg, key)
     %输出数据
     for jj = 1: 4
         for ii = 1: 4
-            emsg = [emsg, char(emsgmat(ii, jj))];
+            emsg = [emsg, emsgmat(ii, jj)];
         end
     end
 end

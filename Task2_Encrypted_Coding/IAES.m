@@ -3,7 +3,7 @@ function msg = IAES(emsg, key)
 %   msg, key为16字节字符串
     load StrucMat.mat ISBox 
     %加载数据
-    msg = '';
+    msg = [];
     emsgmat = zeros(4, 4);
     keymat = zeros(4, 44);
     msgmat = zeros(4, 4);
@@ -52,7 +52,7 @@ function msg = IAES(emsg, key)
     %输出数据
     for jj = 1: 4
         for ii = 1: 4
-            msg = [msg, char(msgmat(ii, jj))];
+            msg = [msg, msgmat(ii, jj)];
         end
     end
 end
