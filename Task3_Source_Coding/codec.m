@@ -308,18 +308,19 @@ else
     return;
 end
 
+sigma = 0;
 fid = fopen("bin.txt", "r");
 data = double(fgetl(fid)) - 48;
 bitstream_in = Convol_Code(data, mode-1, 1);
-fs = 1e5; sigma = 0.5;
+fs = 1e5; 
 bitstream_out = complex_bsc_channel(bitstream_in, mode, 21, 3, fs, sigma^2/fs);
 judge_out = judging(bitstream_out, mode, 0, 1);
-judge_out = -log(judge_out) + judge_out.^2/(sigma^2/21);
+%judge_out = -log(judge_out) + judge_out.^2/(sigma^2/21);
 infodecode = Convol_DecodePro(judge_out, mode-1);
-errate = sum(abs(data-infodecode(1:end-3)))/length(data);
+errate = sum(abs(infodecode(1:end-3)-data));
 fclose(fid);
 fid = fopen("bin.txt", 'wb');
-for ii = 1:length(infodecode)-3
+for ii = 1:length(infodecode)-mode
     fwrite(fid, char(infodecode(ii)+48), 'uint8');
 end
 fclose(fid);
