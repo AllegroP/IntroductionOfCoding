@@ -1,30 +1,28 @@
-function info = Convol_Decode(code,encodingMode,decodingMode)
+function info = Convol_DecodePro(code,encodingMode)
 %{
 code: 0 1 sequence or decimal sequence
-encodingMode: --1:(15,17)  --2:(13,15,17)
-decodingMode: --1:Hard judgement --2:Soft judgement
 %}
     if (encodingMode == 1) % 1:(15,17) 
-        from = zeros(16,length(code)/2);
-        frontScore = zeros(1,16);
+        from = zeros(8,length(code)/4);
+        frontScore = zeros(1,8);
 
-        for i = 1:16  % Distance initialization as the starting point states are limited
+        for i = 1:8  % Distance initialization as the starting point states are limited
             if i>1
                 frontScore(i) = 1000000;
             end
         end
         
-        nowScore = zeros(1,16);
+        nowScore = zeros(1,8);
 
-        for i = 1:length(code)/2  % Viterbi Updation process
-            for j = 1:16 
+        for i = 1:length(code)/4  % Viterbi Updation process
+            for j = 1:8
                 [s1,s2,c1,c2] = getfront(j,1); % Get the pre states and path information
-                r = code(2*i-1 : 2*i);
-                if frontScore(s1)+Distance(r,c1,decodingMode) > frontScore(s2)+Distance(r,c2,decodingMode)
-                    nowScore(j) = frontScore(s2)+sum(c2~=r);
+                r = code(4*i-3 : 4*i); % 一次取出4的距离值
+                if frontScore(s1)+Distance(r,c1,encodingMode) > frontScore(s2)+Distance(r,c2,encodingMode)
+                    nowScore(j) = frontScore(s2)+Distance(r,c2,encodingMode);
                     from(j,i) = s2;
                 else
-                    nowScore(j) = frontScore(s1)+sum(c1~=r);
+                    nowScore(j) = frontScore(s1)+Distance(r,c1,encodingMode);
                     from(j,i) = s1;
                 end     
             end
@@ -33,7 +31,7 @@ decodingMode: --1:Hard judgement --2:Soft judgement
 
         res = [];
         [~,endState] = min(nowScore);
-        for i = length(code)/2:-1:1 % Backtracking algorithm
+        for i = length(code)/4:-1:1 % Backtracking algorithm
             res = [getinfo(endState),res];
             % display(endState);
             endState = from(endState,i);
@@ -42,26 +40,26 @@ decodingMode: --1:Hard judgement --2:Soft judgement
         
     else  % 2:(13,15,17) Coding mode
         
-        from = zeros(16,length(code)/3);
-        frontScore = zeros(1,16);
+        from = zeros(8,length(code)/8);
+        frontScore = zeros(1,8);
 
-        for i = 1:16  % Distance initialization as the starting point states are limited
+        for i = 1:8  % Distance initialization as the starting point states are limited
             if i>1
                 frontScore(i) = 1000000;
             end
         end
 
-        nowScore = zeros(1,16);
+        nowScore = zeros(1,8);
 
-        for i = 1:length(code)/3  % Viterbi Updation process
-            for j = 1:16 
+        for i = 1:length(code)/8  % Viterbi Updation process
+            for j = 1:8
                 [s1,s2,c1,c2] = getfront(j,2); % Get the pre states and path information
-                r = code(3*i-2 : 3*i);
-                if frontScore(s1)+Distance(r,c1,decodingMode) > frontScore(s2)+Distance(r,c2,decodingMode)
-                    nowScore(j) = frontScore(s2)+sum(c2~=r);
+                r = code(8*i-7 : 8*i);
+                if frontScore(s1)+Distance(r,c1,encodingMode) > frontScore(s2)+Distance(r,c2,encodingMode)
+                    nowScore(j) = frontScore(s2)+Distance(r,c2,encodingMode);
                     from(j,i) = s2;
                 else
-                    nowScore(j) = frontScore(s1)+sum(c1~=r);
+                    nowScore(j) = frontScore(s1)+Distance(r,c1,encodingMode);
                     from(j,i) = s1;
                 end     
             end
@@ -70,13 +68,14 @@ decodingMode: --1:Hard judgement --2:Soft judgement
 
         res = [];
         [~,endState] = min(nowScore);
-        for i = length(code)/3:-1:1 % Backtracking algorithm
+        for i = length(code)/8:-1:1 % Backtracking algorithm
             res = [getinfo(endState),res];
             % display(endState);
             endState = from(endState,i);
         end
         info = res;
     end
+    a = 1;
 end
 
 
@@ -111,7 +110,6 @@ function [s1,s2,c1,c2] = getfront(state,mode)
         x6 = (mod(p2,2)==1) | (p2==1); 
         c2 = [x4,x5,x6];
     end
-   
 end
 
 function out = getinfo(state) 
@@ -131,12 +129,34 @@ function out = decTobin(x) % Convert Decimal to Binary
     out = y;
 end
 
-function out = Distance(a,b,mode)
+function out = Distance(dis,c,mode)
     if (mode==1)
-        out = sum(a~=b);
+        if (c(1)==0 && c(2)==0)
+            out = dis(1);
+        elseif(c(1)==0 && c(2)==1)
+            out = dis(2);
+        elseif(c(1)==1 && c(2)==1)
+            out = dis(3);
+        else
+            out = dis(4);
+        end
     else
-        index = a==0;
-        a(index) = -1;
-        out = -sum(a.*b);
+        if (c(1)==0 && c(2)==0 && c(3)==0)
+            out = dis(1);
+        elseif(c(1)==0 && c(2)==0 && c(3)==1)
+            out = dis(2);
+        elseif(c(1)==0 && c(2)==1 && c(3)==1)
+            out = dis(3);
+        elseif(c(1)==0 && c(2)==1 && c(3)==0)
+            out = dis(4);
+        elseif(c(1)==1 && c(2)==1 && c(3)==0)
+            out = dis(5);
+        elseif(c(1)==1 && c(2)==1 && c(3)==1)
+            out = dis(6);
+        elseif(c(1)==1 && c(2)==0 && c(3)==1)
+            out = dis(7);
+        elseif(c(1)==1 && c(2)==0 && c(3)==0)
+            out = dis(8);
+        end
     end
 end
